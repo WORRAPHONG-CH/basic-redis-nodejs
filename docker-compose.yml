@@ -1,0 +1,41 @@
+version: '3.7' # docker version
+services: # create 3 service
+  node-server-cache:
+    container_name: node-server-cache # define container name
+    build: .
+    ports:
+    - 8001:8001 # map port external and internal
+    
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root # define password
+      MYSQL_DATABASE: mydb # define initial database(schema) mysql
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    
+  phpmyadmin-cache:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin-cache
+    environment:
+      PMA_HOST: mysql # ระบุ host ที่จะให้ phpmyadmin ไปจัดการ ซึ่งสามารถใส่เป็นชื่อ container name (db) ได้เลย
+      PMA_PORT: 3306 # ระบุ port ของ Database [the internal MySQL port]
+      PMA_USER: root  # ระบุ user ของ Database
+      PMA_PASSWORD: root  # ระบุ password ของ Database
+    ports:
+      - "8081:80"
+    depends_on:
+      - mysql
+
+  redis-cache:
+    image: redis:latest
+    container_name: redis-cache
+    ports:
+      - "6379:6379" # localhost:6379
+
+volumes:
+  mysql-data:
+    driver: local
